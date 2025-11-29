@@ -22,10 +22,9 @@ def configure_logging() -> None:
     )
 
 
-def determine_last_week(reference: dt.date) -> tuple[int, int]:
-    """Return iso (year, week) for the week prior to *reference*."""
-    target = reference - dt.timedelta(days=7)
-    iso = target.isocalendar()
+def determine_target_week(reference: dt.date) -> tuple[int, int]:
+    """Return iso (year, week) for the current week of *reference*."""
+    iso = reference.isocalendar()
     return iso.year, iso.week
 
 
@@ -41,7 +40,7 @@ def fetch_daily_report_texts(rows, drive_client: DriveClient) -> List[str]:
 def main() -> None:
     configure_logging()
     today = dt.date.today()
-    iso_year, iso_week = determine_last_week(today)
+    iso_year, iso_week = determine_target_week(today)
     week_start = dt.date.fromisocalendar(iso_year, iso_week, 1)
     week_end = week_start + dt.timedelta(days=6)
 
@@ -58,7 +57,7 @@ def main() -> None:
         daily_texts = fetch_daily_report_texts(rows, drive_client)
         weekly_text = gemini.generate_weekly_report(week_start, week_end, daily_texts)
         html_report = render_html_report(
-            title=f"Weekly Trade Pulse – {week_start:%b %d} to {week_end:%b %d}",
+            title=f"Weekly Trade Pulse - {week_start:%b %d} to {week_end:%b %d}",
             report_markdown=weekly_text,
             report_date=week_end,
         )
@@ -66,6 +65,9 @@ def main() -> None:
         filename = f"weekly_report_{iso_year}_{iso_week:02d}.md"
         report_path = config.WEEKLY_REPORTS_LOCAL_DIR / filename
         report_path.write_text(weekly_text, encoding="utf-8")
+        html_filename = f"weekly_report_{iso_year}_{iso_week:02d}.html"
+        html_path = config.WEEKLY_REPORTS_LOCAL_DIR / html_filename
+        html_path.write_text(html_report, encoding="utf-8")
 
         drive_id = drive_client.upload_file(
             report_path,
@@ -88,7 +90,7 @@ def main() -> None:
             subject=f"Weekly Trade Report - {week_start:%Y-%m-%d} to {week_end:%Y-%m-%d}",
             body_text=weekly_text,
             html_body=html_report,
-            attachments=[(filename, report_path.read_bytes(), "text/markdown")],
+            attachments=[(html_filename, html_path.read_bytes(), "text/html")],
         )
         LOGGER.info("Weekly report %s generated", filename)
     finally:
@@ -97,3 +99,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+

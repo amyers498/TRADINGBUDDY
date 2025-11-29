@@ -61,11 +61,11 @@ class GeminiClient:
         prompt = textwrap.dedent(
             f"""
             Summarize the following daily trading reports for {start_date:%Y-%m-%d} to {end_date:%Y-%m-%d}.
-            Limit to ~250 words with markdown sections:
-            ## Weekly Pulse (wins/losses + momentum)
-            ## Recurring Mistakes (2 bullets)
-            ## Bright Spots (2 bullets)
-            ## Focus for Next Week (3-4 bullets)
+            Keep it under 180 words with markdown sections:
+            ## Weekly Pulse (wins/losses + momentum) — 2 bullets
+            ## Recurring Mistakes — 2 bullets
+            ## Bright Spots — 2 bullets
+            ## Focus for Next Week — 3 bullets
 
             Daily reports:
             {reports_blob}
@@ -84,11 +84,11 @@ class GeminiClient:
         prompt = textwrap.dedent(
             f"""
             Create a high-level trading review for {month_start:%B %Y} ({month_start:%Y-%m-%d} to {month_end:%Y-%m-%d}).
-            Keep it under 300 words with markdown sections:
-            ## Macro Pulse
-            ## Strategy Insights
-            ## Risk & Psychology
-            ## Goals for Next Month (3 bullets)
+            Keep it under 220 words with markdown sections:
+            ## Macro Pulse — 2 bullets
+            ## Strategy Insights — 2 bullets
+            ## Risk & Psychology — 2 bullets
+            ## Goals for Next Month — 3 bullets
 
             Weekly reports:
             {reports_blob}

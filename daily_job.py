@@ -60,14 +60,17 @@ def process_file(
     trades_df = pd.read_csv(local_csv)
 
     report_text = gemini.generate_daily_report(trade_date, trades_df)
-    report_filename = f"daily_report_{trade_date.isoformat()}.md"
-    report_path = config.DAILY_REPORTS_LOCAL_DIR / report_filename
-    report_path.write_text(report_text, encoding="utf-8")
     html_report = render_html_report(
-        title=f"Daily Trade Pulse – {trade_date:%b %d, %Y}",
+        title=f"Daily Trade Pulse - {trade_date:%b %d, %Y}",
         report_markdown=report_text,
         report_date=trade_date,
     )
+    report_filename = f"daily_report_{trade_date.isoformat()}.md"
+    report_path = config.DAILY_REPORTS_LOCAL_DIR / report_filename
+    report_path.write_text(report_text, encoding="utf-8")
+    html_filename = f"daily_report_{trade_date.isoformat()}.html"
+    html_path = config.DAILY_REPORTS_LOCAL_DIR / html_filename
+    html_path.write_text(html_report, encoding="utf-8")
 
     drive_report_id = drive_client.upload_file(
         report_path,
@@ -89,9 +92,9 @@ def process_file(
         html_body=html_report,
         attachments=[
             (
-                report_filename,
-                report_path.read_bytes(),
-                "text/markdown",
+                html_filename,
+                html_path.read_bytes(),
+                "text/html",
             )
         ],
     )

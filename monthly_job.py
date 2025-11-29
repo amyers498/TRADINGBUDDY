@@ -22,12 +22,15 @@ def configure_logging() -> None:
     )
 
 
-def previous_month(reference: dt.date) -> tuple[dt.date, dt.date]:
-    """Return the date range covering the previous calendar month."""
+def current_month(reference: dt.date) -> tuple[dt.date, dt.date]:
+    """Return the date range covering the current calendar month."""
     first_this_month = reference.replace(day=1)
-    last_prev_month = first_this_month - dt.timedelta(days=1)
-    first_prev_month = last_prev_month.replace(day=1)
-    return first_prev_month, last_prev_month
+    if reference.month == 12:
+        first_next_month = reference.replace(year=reference.year + 1, month=1, day=1)
+    else:
+        first_next_month = reference.replace(month=reference.month + 1, day=1)
+    last_this_month = first_next_month - dt.timedelta(days=1)
+    return first_this_month, last_this_month
 
 
 def fetch_weekly_report_texts(rows, drive_client: DriveClient) -> List[str]:
@@ -42,7 +45,7 @@ def fetch_weekly_report_texts(rows, drive_client: DriveClient) -> List[str]:
 def main() -> None:
     configure_logging()
     today = dt.date.today()
-    month_start, month_end = previous_month(today)
+    month_start, month_end = current_month(today)
 
     drive_client = DriveClient()
     db = Database(config.DB_PATH)
@@ -61,7 +64,7 @@ def main() -> None:
         weekly_texts = fetch_weekly_report_texts(rows, drive_client)
         monthly_text = gemini.generate_monthly_report(month_start, month_end, weekly_texts)
         html_report = render_html_report(
-            title=f"Monthly Trade Pulse – {month_start:%B %Y}",
+            title=f"Monthly Trade Pulse - {month_start:%B %Y}",
             report_markdown=monthly_text,
             report_date=month_end,
         )
@@ -69,6 +72,9 @@ def main() -> None:
         filename = f"monthly_report_{month_start:%Y_%m}.md"
         report_path = config.MONTHLY_REPORTS_LOCAL_DIR / filename
         report_path.write_text(monthly_text, encoding="utf-8")
+        html_filename = f"monthly_report_{month_start:%Y_%m}.html"
+        html_path = config.MONTHLY_REPORTS_LOCAL_DIR / html_filename
+        html_path.write_text(html_report, encoding="utf-8")
 
         drive_id = drive_client.upload_file(
             report_path,
@@ -91,7 +97,7 @@ def main() -> None:
             subject=f"Monthly Trade Report - {month_start:%B %Y}",
             body_text=monthly_text,
             html_body=html_report,
-            attachments=[(filename, report_path.read_bytes(), "text/markdown")],
+            attachments=[(html_filename, html_path.read_bytes(), "text/html")],
         )
         LOGGER.info("Monthly report %s uploaded as %s", filename, drive_id)
     finally:
@@ -100,3 +106,4 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
