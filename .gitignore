@@ -1,0 +1,14 @@
+# Environment and auth
+.env
+token.json
+credentials.json
+service_account.json
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Local artifacts
+downloads/
+reports/
+trade_buddy.db

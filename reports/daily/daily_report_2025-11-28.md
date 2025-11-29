@@ -1,16 +1,18 @@
+### Trade Review: 2025-11-28
+
 ## Pulse Check
-*   A flawless session on the surface: 3 wins, 0 losses, for a net profit of $850.20 after costs.
-*   Profitability was strong, but without recorded stop-losses, your true risk-reward profile is a blind spot.
+*   A perfect 100% win rate, banking a net profit of $850 after all costs. A clean sweep.
+*   This winning outcome was driven by luck, not process. The market bailed you out of a dangerous risk management mistake.
 
 ## Mistakes to Fix
-*   Your entries were undisciplined. Adding to a position at a lower price is averaging down—a dangerous habit, even when it works.
-*   Exit management was inconsistent. You closed two-thirds of your position prematurely, leaving significant profit on the table.
+*   Inverted pyramiding. Your initial entry was your worst price. Adding to a position as it moves against you is a fatal flaw.
+*   Reactive sizing. You doubled down into a drawdown without a clear plan, turning a trade into a gamble. Define risk first.
 
 ## Focus & Mindset
-*   Guard against complacency. A 100% win rate can mask process errors. Don't let a positive outcome reinforce a flawed strategy.
-*   Trade with conviction, not improvisation. A complete plan—entry, stop, and target—must exist before you ever click the button.
+*   Do not let profit reinforce a bad habit. The market has a long memory for undisciplined trades. Stay humble.
+*   Patience is your edge. Waiting for the optimal entry would have yielded a better result with far less risk and stress.
 
 ## Next Session
-1.  Define a single, optimal entry point for each setup. No averaging down.
-2.  Set one unified exit strategy for all contracts within a single trade idea.
-3.  Log your planned stop-loss for every trade to validate risk and enforce discipline.
+1.  Set your max position size for any single setup *before* you enter.
+2.  Your first entry must be your best price. Do not add to a losing position.
+3.  Write down your specific price targets for profit and loss before placing the trade.
