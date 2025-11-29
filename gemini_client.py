@@ -30,7 +30,9 @@ class GeminiClient:
         self.timeout = timeout
         self.model_name = model_name or config.GEMINI_MODEL_NAME
 
-    def generate_daily_report(self, trade_date: date, trades_df: pd.DataFrame) -> str:
+    def generate_daily_report(
+        self, trade_date: date, trades_df: pd.DataFrame, trade_summary: str
+    ) -> str:
         """Generate a markdown report for a single day of trades."""
         sample = self._dataframe_sample(trades_df)
         prompt = textwrap.dedent(
@@ -42,7 +44,10 @@ class GeminiClient:
             ## Focus & Mindset - 2 bullets
             ## Next Session - EXACTLY three numbered action items
 
-            Keep sentences crisp and punchy.
+            Keep sentences crisp and punchy. When judging PnL, account for any fees/commissions present so net results reflect costs.
+
+            Trade summary (all rows):
+            {trade_summary}
 
             Trade sample (first rows):
             {sample}

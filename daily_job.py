@@ -4,7 +4,7 @@ from __future__ import annotations
 import datetime as dt
 import logging
 import re
-from typing import Dict
+from typing import Dict, List
 
 import pandas as pd
 
@@ -37,6 +37,48 @@ def parse_trade_date(file_name: str, modified_time: str | None) -> dt.date:
     return dt.date.today()
 
 
+def summarize_trades(df: pd.DataFrame) -> str:
+    """Build a concise summary of the full trade set for the LLM."""
+    lines: List[str] = []
+    lines.append(f"Total trades: {len(df)}")
+    lines.append(f"Columns: {', '.join(df.columns)}")
+
+    pnl_col = next((c for c in df.columns if c.lower() in {"pnl", "pl"}), None)
+    if pnl_col:
+        pnl_series = df[pnl_col].dropna()
+        wins = (pnl_series > 0).sum()
+        losses = (pnl_series <= 0).sum()
+        win_rate = (wins / len(pnl_series) * 100) if len(pnl_series) else 0
+        lines.append(
+            f"{pnl_col} stats: total={pnl_series.sum():.2f}, avg={pnl_series.mean():.2f}, "
+            f"win_rate={win_rate:.1f}% (wins={wins}, losses={losses})"
+        )
+
+    fee_col = next((c for c in df.columns if c.lower() in {"fees", "commission", "commissions"}), None)
+    if fee_col:
+        fee_series = df[fee_col].dropna()
+        lines.append(
+            f"{fee_col} stats: total={fee_series.sum():.2f}, avg={fee_series.mean():.2f}"
+        )
+
+    size_col = next((c for c in df.columns if c.lower() in {"size", "qty", "quantity"}), None)
+    if size_col:
+        size_series = df[size_col].dropna()
+        lines.append(
+            f"{size_col} stats: avg={size_series.mean():.2f}, max={size_series.max():.2f}"
+        )
+
+    numeric = df.select_dtypes(include="number")
+    if not numeric.empty:
+        try:
+            describe_table = numeric.describe().round(2).to_markdown()
+        except Exception:
+            describe_table = numeric.describe().round(2).to_string()
+        lines.append("Numeric describe:\n" + describe_table)
+
+    return "\n".join(lines)
+
+
 def process_file(
     *,
     file_meta: Dict[str, str],
@@ -59,7 +101,8 @@ def process_file(
     drive_client.download_file(file_id, local_csv)
     trades_df = pd.read_csv(local_csv)
 
-    report_text = gemini.generate_daily_report(trade_date, trades_df)
+    trade_summary = summarize_trades(trades_df)
+    report_text = gemini.generate_daily_report(trade_date, trades_df, trade_summary)
     html_report = render_html_report(
         title=f"Daily Trade Pulse - {trade_date:%b %d, %Y}",
         report_markdown=report_text,
@@ -136,6 +179,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-
-
